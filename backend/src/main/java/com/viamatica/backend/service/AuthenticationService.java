@@ -87,7 +87,11 @@ public class AuthenticationService {
         extraClaims.put("email", user.getEmail()); //
         extraClaims.put("role", user.getRole().name());
         extraClaims.put("permissions", customUserDetails.getAuthorities());
-        extraClaims.put("authorizedRoutes", user.getRole().getRoutes().stream().map(Route::getPath).collect(Collectors.toList())); // test
+        extraClaims.put("authorizedRoutes",
+                user.getRole()
+                        .getRoutes().stream()
+                        .map(route -> Map.of("name", route.getName(), "path", route.getPath()))
+                        .collect(Collectors.toList())); // test
 
         return extraClaims;
     }
