@@ -4,9 +4,9 @@ import lombok.Getter;
 
 @Getter
 public enum Route {
-    HOME("Inicio","/"),
-    USERS("Usuarios","/users"),
-    ABOUT("Acerca de","/about");
+    HOME("Inicio",""),
+    USERS("Usuarios","users"),
+    ABOUT("Acerca de","about");
 
     private String name;
     private String path;

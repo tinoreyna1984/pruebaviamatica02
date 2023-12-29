@@ -10,7 +10,7 @@ const routes: Routes = [
       component: MainLayoutComponent,
       children: [
         {
-          path: 'main',
+          path: '',
           component: MainPageComponent,
         },
         {
@@ -23,7 +23,7 @@ const routes: Routes = [
         },
         {
           path: '**',
-          redirectTo: 'main',
+          redirectTo: '',
         },
       ]
     },
