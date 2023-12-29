@@ -7,6 +7,7 @@ import com.viamatica.backend.model.dto.response.AuthenticationResponse;
 import com.viamatica.backend.model.entity.User;
 import com.viamatica.backend.repository.UserRepository;
 import com.viamatica.backend.util.Role;
+import com.viamatica.backend.util.Route;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class AuthenticationService {
@@ -85,6 +87,7 @@ public class AuthenticationService {
         extraClaims.put("email", user.getEmail()); //
         extraClaims.put("role", user.getRole().name());
         extraClaims.put("permissions", customUserDetails.getAuthorities());
+        extraClaims.put("authorizedRoutes", user.getRole().getRoutes().stream().map(Route::getPath).collect(Collectors.toList())); // test
 
         return extraClaims;
     }
