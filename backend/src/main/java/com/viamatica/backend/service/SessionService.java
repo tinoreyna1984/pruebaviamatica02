@@ -18,15 +18,16 @@ public class SessionService {
     @Autowired
     private UserRepository userRepository;
 
-    public void creaSesion(AuthenticationRequest authRequest) {
+    public void creaSesion(AuthenticationRequest authRequest, String jwt) {
         Session session = new Session();
         User user = userRepository.findByUsername(authRequest.getUsername()).get();
         session.setUser(user);
+        session.setJwt(jwt); // paso JWT
         session.setFechaInicioSesion(new Date());
         sessionRepository.save(session);
     }
 
-    public void finSesion(){
-
+    public void finSesion(String jwt){
+        sessionRepository.agregarFechaFinSesion(jwt);
     }
 }

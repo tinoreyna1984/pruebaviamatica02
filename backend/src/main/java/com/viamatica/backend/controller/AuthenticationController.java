@@ -2,6 +2,7 @@ package com.viamatica.backend.controller;
 
 import com.viamatica.backend.model.dto.request.AuthenticationRequest;
 import com.viamatica.backend.model.dto.request.RegistrationRequest;
+import com.viamatica.backend.model.dto.request.SessionRequest;
 import com.viamatica.backend.model.dto.response.AuthenticationResponse;
 import com.viamatica.backend.repository.SessionRepository;
 import com.viamatica.backend.repository.UserRepository;
@@ -53,7 +54,7 @@ public class AuthenticationController {
 
         try{
             AuthenticationResponse jwtDto = authenticationService.login(authRequest);
-            sessionService.creaSesion(authRequest);
+            sessionService.creaSesion(authRequest, jwtDto.getJwt()); // paso JWT
             response.put("mensaje", "Se ha dado acceso al usuario");
             response.put("jwt", jwtDto.getJwt());
             return new ResponseEntity<>(response, HttpStatus.OK);
@@ -98,8 +99,12 @@ public class AuthenticationController {
 
     @PreAuthorize("permitAll")
     @PatchMapping("/logout")
-    public ResponseEntity<?> logout(){
-        return null;
+    public ResponseEntity<?> logout(@RequestBody SessionRequest sessionRequest){
+        Map<String, Object> response = new HashMap<>();
+        String jwt = sessionRequest.getJwt();
+        sessionService.finSesion(jwt);
+        response.put("mensaje", "Se cierra sesion");
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PreAuthorize("permitAll")

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.util.Date;
 
@@ -17,6 +18,9 @@ public class Session {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "session_id")
     private Long id;
+
+    @Column(nullable = true, length = 1024)
+    private String jwt;
 
     @Column(name = "fecha_inicio_sesion")
     @Temporal(TemporalType.TIMESTAMP)

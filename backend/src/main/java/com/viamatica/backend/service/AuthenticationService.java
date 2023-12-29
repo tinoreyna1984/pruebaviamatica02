@@ -91,7 +91,7 @@ public class AuthenticationService {
                 user.getRole()
                         .getRoutes().stream()
                         .map(route -> Map.of("name", route.getName(), "path", route.getPath()))
-                        .collect(Collectors.toList())); // test
+                        .collect(Collectors.toList())); // rutas
 
         return extraClaims;
     }
