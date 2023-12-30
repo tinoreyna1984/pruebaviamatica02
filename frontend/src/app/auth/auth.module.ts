@@ -5,6 +5,8 @@ import { LoginPageComponent } from './pages/login-page/login-page.component';
 import { RegisterPageComponent } from './pages/register-page/register-page.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AuthRoutingModule } from './auth-routing.module';
+import { MaterialModule } from '../material/material.module';
+import { SharedModule } from '../shared/shared.module';
 
 
 
@@ -19,6 +21,8 @@ import { AuthRoutingModule } from './auth-routing.module';
     AuthRoutingModule,
     FormsModule,
     ReactiveFormsModule,
+    MaterialModule,
+    SharedModule
   ]
 })
 export class AuthModule { }

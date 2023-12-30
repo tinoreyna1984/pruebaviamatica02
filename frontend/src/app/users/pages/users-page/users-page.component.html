@@ -1,1 +1,87 @@
-<p>users-page works!</p>
+<h1>Usuarios</h1>
+<button
+  type="button"
+  class="btn btn-success my-2"
+  *ngIf="this.isAdminFlag === true"
+  (click)="openAgregarUsuario()"
+>
+  Agregar usuario
+</button>
+<div class="mat-elevation-z8 table-responsive">
+  <table mat-table [dataSource]="dataSource" [hidden]="loading">
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+
+    <ng-container matColumnDef="id">
+      <th mat-header-cell *matHeaderCellDef>#</th>
+      <td mat-cell *matCellDef="let usuario">{{ usuario.id }}</td>
+    </ng-container>
+    <ng-container matColumnDef="accessId">
+      <th mat-header-cell *matHeaderCellDef>ID de acceso</th>
+      <td mat-cell *matCellDef="let usuario">{{ usuario.accessId }}</td>
+    </ng-container>
+    <ng-container matColumnDef="username">
+      <th mat-header-cell *matHeaderCellDef>Nombre de usuario</th>
+      <td mat-cell *matCellDef="let usuario">{{ usuario.username }}</td>
+    </ng-container>
+    <ng-container matColumnDef="email">
+      <th mat-header-cell *matHeaderCellDef>Email</th>
+      <td mat-cell *matCellDef="let usuario">{{ usuario.email }}</td>
+    </ng-container>
+    <ng-container matColumnDef="nombreCompleto">
+      <th mat-header-cell *matHeaderCellDef>Nombre</th>
+      <td mat-cell *matCellDef="let usuario">
+        {{ usuario.name }} {{ usuario.lastName }}
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="role">
+      <th mat-header-cell *matHeaderCellDef>Rol</th>
+      <td mat-cell *matCellDef="let usuario">{{ usuario.role }}</td>
+    </ng-container>
+    <ng-container matColumnDef="habilitado">
+      <th mat-header-cell *matHeaderCellDef>Habilitado</th>
+      <td mat-cell *matCellDef="let usuario">{{ usuario.enabled }}</td>
+    </ng-container>
+    <!-- <ng-container matColumnDef="habilitar">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let usuario">
+            <button type="button" class="btn btn-outline-info my-2">{{usuario.enabled ? "Deshabilitar" : "Habilitar"}}</button>
+          </td>
+        </ng-container> -->
+    <ng-container matColumnDef="modificar">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let usuario">
+        <button
+          type="button"
+          class="btn btn-info my-2"
+          (click)="openModificarUsuario(usuario.id)"
+          *ngIf="this.isAdminFlag === true"
+        >
+          Modificar
+        </button>
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="borrar">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let usuario">
+        <button
+          type="button"
+          class="btn btn-danger my-2"
+          (click)="openBorrarUsuario(usuario.id)"
+          *ngIf="this.isAdminFlag === true"
+        >
+          Eliminar
+        </button>
+      </td>
+    </ng-container>
+  </table>
+  <app-spinner [loading]="this.loading"></app-spinner>
+
+  <mat-paginator
+    [disabled]="loading"
+    [pageSizeOptions]="[5, 10, 20]"
+    showFirstLastButtons
+    aria-label="Recorrer páginas"
+  >
+  </mat-paginator>
+</div>

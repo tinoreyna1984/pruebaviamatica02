@@ -1,1 +1,13 @@
-<p>delete-user works!</p>
+<h1 mat-dialog-title>Borrar usuario</h1>
+<div mat-dialog-content>
+    <mat-card class="example-card">
+        <mat-card-content>
+            ¿Está seguro?
+        </mat-card-content>
+        <mat-card-actions class="d-flex gap-2">
+          <button mat-button mat-dialog-close class="btn btn-danger" (click)="onBorrarUsuario()">Sí</button>
+          <button mat-button mat-dialog-close class="btn btn-info">No</button>
+        </mat-card-actions>
+      </mat-card>
+</div>
+

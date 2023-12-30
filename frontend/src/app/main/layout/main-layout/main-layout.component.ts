@@ -10,9 +10,11 @@ export class MainLayoutComponent implements OnInit {
   constructor(private authService: AuthService){}
 
   links: any;
+  userRealName: string | null = '';
 
   ngOnInit(): void {
     this.links = this.authService.getRoutes();
+    this.userRealName = this.authService.getUserRealNameFromToken();
     console.log(this.links);
   }
 
