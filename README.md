@@ -77,12 +77,6 @@
 Desde el programa principal AcademiaApplication.java (con IntelliJ IDEA u otro IDE).
 También con el ejecutable de Maven si aplica.
 
-### Docker
-* Levantar contenedor:
-```bash
-docker-compose up # desde la raíz
-```
-
 ### Endpoints:
 Definidos en el archivo: Academia - Springboot.postman_collection.json (usarlo con Postman)
 
