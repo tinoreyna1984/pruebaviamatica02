@@ -15,7 +15,7 @@ export class MainLayoutComponent implements OnInit {
   ngOnInit(): void {
     this.links = this.authService.getRoutes();
     this.userRealName = this.authService.getUserRealNameFromToken();
-    console.log(this.links);
+    //console.log(this.links);
   }
 
   onLogout(){

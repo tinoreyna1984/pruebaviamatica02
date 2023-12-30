@@ -53,8 +53,17 @@ export class UsersService {
 
   borrarUser(id: string) {
     const token = localStorage.getItem('jwt');
-    const headers = { 'Authorization': 'Bearer ' + token }
+    const headers = { 'Authorization': 'Bearer ' + token };
     return this.http.delete<any>(`${this.baseUrl}/users/${id}`, { headers })
+    .pipe(
+      map((response: any) => response)
+    );
+  }
+
+  batchLoad(formData: any){
+    const token = localStorage.getItem('jwt');
+    const headers = { 'Authorization': 'Bearer ' + token, 'Accept': 'multipart/form-data' }
+    return this.http.post(`${this.baseUrl}/csv`, formData, { headers, responseType: 'text'})
     .pipe(
       map((response: any) => response)
     );

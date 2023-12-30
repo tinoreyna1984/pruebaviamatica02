@@ -18,7 +18,7 @@ export class MainPageComponent {
   userLastSession: any;
 
   ngOnInit(): void {
-    console.log(localStorage.getItem('jwt'));
+    // console.log(localStorage.getItem('jwt'));
     this.userRealName = this.authService.getUserRealNameFromToken();
     this.userRole = this.authService.getRoleFromToken();
     this.userEmail = this.authService.getEmailFromToken();
@@ -26,8 +26,8 @@ export class MainPageComponent {
     this.userLastSession = this.authService.getSessions().reduce((anterior: any, actual: any) => {
       const fechaAnterior = new Date(anterior.fechaFinSesion);
       const fechaActual = new Date(actual.fechaFinSesion);
-      return fechaAnterior > fechaActual ? anterior : actual;
-  }) || [];
-    console.log(this.userLastSession)
+      return (fechaAnterior > fechaActual ? anterior : actual);
+  });
+    // console.log(this.userLastSession)
   }
 }

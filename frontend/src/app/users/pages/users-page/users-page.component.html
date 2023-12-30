@@ -1,15 +1,23 @@
 <h1>Usuarios - Dashboard y gestión</h1>
 <div class="row">
-  <app-dashboard></app-dashboard>
+  <app-dashboard [loading]="this.loading"></app-dashboard>
 </div>
-<button
-  type="button"
-  class="btn btn-success my-2"
-  *ngIf="this.isAdminFlag === true"
-  (click)="openAgregarUsuario()"
->
-  Agregar usuario
-</button>
+
+<div class="row">
+  <div class="col">
+    <button
+      type="button"
+      class="btn btn-success my-2"
+      (click)="openAgregarUsuario()"
+    >
+      Agregar usuario
+    </button>
+  </div>
+  <div class="col d-flex">
+      <input type="file" (change)="onFileSelected($event)" />
+      <button type="button" class="btn btn-info my-2" (click)="onLoadFile()">Carga masiva</button>
+  </div>
+</div>
 <div class="mat-elevation-z8 table-responsive">
   <table mat-table [dataSource]="dataSource" [hidden]="loading">
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>

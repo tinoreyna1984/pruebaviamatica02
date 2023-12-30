@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { AuthService } from 'src/app/auth/services/auth.service';
 import Swal from 'sweetalert2';
 
@@ -9,6 +9,8 @@ import Swal from 'sweetalert2';
 })
 export class DashboardComponent implements OnInit {
   constructor(private authService: AuthService) {}
+
+  @Input() loading: boolean = false;
 
   dashboard: any;
   active: number = 0;

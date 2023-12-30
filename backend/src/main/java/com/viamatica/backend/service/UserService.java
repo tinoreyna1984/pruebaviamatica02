@@ -1,5 +1,8 @@
 package com.viamatica.backend.service;
 
+import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
+import com.opencsv.exceptions.CsvException;
 import com.viamatica.backend.model.dto.request.UserRequest;
 import com.viamatica.backend.model.entity.User;
 import com.viamatica.backend.repository.UserRepository;
@@ -14,8 +17,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -195,4 +202,40 @@ public class UserService {
         }
     }
 
+    public void cargarDesdeCSV(MultipartFile archivo) throws IOException {
+        try (
+             Reader reader = new InputStreamReader(archivo.getInputStream());
+             CSVReader csvReader = new CSVReaderBuilder(reader).build()
+        ) {
+            List<String[]> filas = csvReader.readAll();
+
+            for (String[] fila : filas) {
+                UserRequest userRequest = pasarValores(fila);
+                User user = new User();
+                user.setUsername(userRequest.getUsername());
+                encriptarClaveUsuario(userRequest);
+                user.setPassword(userRequest.getPassword());
+                user.setAccessId(userRequest.getAccessId());
+                user.setEmail(userRequest.getEmail());
+                user.setName(userRequest.getName());
+                user.setLastName(userRequest.getLastName());
+                user.setRole(userRequest.getRole());
+                userRepository.save(user);
+            }
+        } catch (CsvException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private UserRequest pasarValores(String[] fila) {
+        UserRequest userRequest = new UserRequest();
+        userRequest.setUsername(fila[0]);
+        userRequest.setPassword(fila[1]);
+        userRequest.setAccessId(fila[2]);
+        userRequest.setEmail(fila[3]);
+        userRequest.setName(fila[4]);
+        userRequest.setLastName(fila[5]);
+        userRequest.setRole(Role.valueOf(fila[6]));
+        return userRequest;
+    }
 }

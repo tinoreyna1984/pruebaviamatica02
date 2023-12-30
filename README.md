@@ -64,6 +64,14 @@
 			<artifactId>spring-boot-starter-validation</artifactId>
 		</dependency> <!--requiere Validation-->
 ```
+* OpenCSV
+```xml
+		<dependency>
+			<groupId>com.opencsv</groupId>
+			<artifactId>opencsv</artifactId>
+			<version>5.6</version>
+		</dependency>
+```
 
 ### Ejecución
 Desde el programa principal AcademiaApplication.java (con IntelliJ IDEA u otro IDE).
@@ -83,13 +91,19 @@ Probar en http://localhost:4009/swagger-ui/index.html
 
 ## Frontend
 
+### Dependencias empleadas
+* Angular
+* Angular Material
+* Bootstrap
+* Sweet Alert 2
+* JWT Decode
+
 ## Para probar
 * Login como usuario:
 ```bash
 U: Tinoreyna1984
 C: u$uari0CRM
 ```
-
 * Login como administrador:
 ```bash
 U: Administrat0r

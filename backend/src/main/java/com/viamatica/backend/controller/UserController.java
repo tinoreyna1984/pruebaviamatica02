@@ -2,11 +2,14 @@ package com.viamatica.backend.controller;
 
 import com.viamatica.backend.model.dto.request.UserRequest;
 import com.viamatica.backend.service.UserService;
+import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api")
@@ -55,5 +58,16 @@ public class UserController {
     @GetMapping("/dashboard")
     public ResponseEntity<?> getDashboard(){
         return userService.dashboard();
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
+    @PostMapping(value = "/csv", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    public ResponseEntity<String> cargarDesdeCSV(@RequestPart(value = "archivo") MultipartFile archivo) {
+        try {
+            userService.cargarDesdeCSV(archivo);
+            return ResponseEntity.ok("Carga exitosa desde CSV");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error al cargar desde CSV: " + e.getMessage());
+        }
     }
 }
