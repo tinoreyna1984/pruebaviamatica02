@@ -1,7 +1,7 @@
 package com.viamatica.backend.model.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.viamatica.backend.util.Role;
 import jakarta.persistence.*;
@@ -41,7 +41,7 @@ public class User {
     // relación con las sesiones
     @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE}, orphanRemoval = true)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY) // previene la validación innecesaria del Content-Type
-    @JsonBackReference
+    @JsonManagedReference
     private List<Session> sessions;
 
     @Column(name = "account_non_locked")

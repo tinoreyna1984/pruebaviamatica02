@@ -66,12 +66,48 @@ export class AuthService {
     return null;
   }
 
+  getEmailFromToken(): string | null {
+    const token = localStorage.getItem('jwt');
+    if (token) {
+      const decodedToken: any = jwt_decode(token);
+      return decodedToken.email;
+    }
+    return null;
+  }
+
   // obtengo nombre del usuario
   getUserRealNameFromToken(): string | null {
     const token = localStorage.getItem('jwt');
     if (token) {
       const decodedToken: any = jwt_decode(token);
       return decodedToken.name;
+    }
+    return null;
+  }
+
+  getUserIdFromToken() {
+    const token = localStorage.getItem('jwt');
+    if (token) {
+      const decodedToken: any = jwt_decode(token);
+      return decodedToken.userId;
+    }
+    return null;
+  }
+
+  geFailedAttemptsFromToken() {
+    const token = localStorage.getItem('jwt');
+    if (token) {
+      const decodedToken: any = jwt_decode(token);
+      return decodedToken.failedAttempts;
+    }
+    return null;
+  }
+
+  getSessions(){
+    const token = localStorage.getItem('jwt');
+    if (token) {
+      const decodedToken: any = jwt_decode(token);
+      return decodedToken.lastSessions;
     }
     return null;
   }

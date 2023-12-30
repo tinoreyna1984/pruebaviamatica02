@@ -4,6 +4,7 @@ import com.viamatica.backend.config.implementation.CustomUserDetails;
 import com.viamatica.backend.model.dto.request.AuthenticationRequest;
 import com.viamatica.backend.model.dto.request.RegistrationRequest;
 import com.viamatica.backend.model.dto.response.AuthenticationResponse;
+import com.viamatica.backend.model.entity.Session;
 import com.viamatica.backend.model.entity.User;
 import com.viamatica.backend.repository.UserRepository;
 import com.viamatica.backend.util.Role;
@@ -13,6 +14,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -86,12 +88,29 @@ public class AuthenticationService {
         extraClaims.put("lastName", user.getLastName()); //
         extraClaims.put("email", user.getEmail()); //
         extraClaims.put("role", user.getRole().name());
+        extraClaims.put("failedAttempts", user.getFailedAttempts());
         extraClaims.put("permissions", customUserDetails.getAuthorities());
         extraClaims.put("authorizedRoutes",
                 user.getRole()
                         .getRoutes().stream()
                         .map(route -> Map.of("name", route.getName(), "path", route.getPath()))
                         .collect(Collectors.toList())); // rutas
+        extraClaims.put("lastSessions", new ArrayList<>(
+                user
+                .getSessions()
+                        .stream().filter(s -> s.getFechaFinSesion() != null)
+                        .map(s -> {
+                            Session session = new Session();
+                            session.setJwt("");
+                            session.setId(s.getId());
+                            session.setUser(s.getUser());
+                            session.setFechaInicioSesion(s.getFechaInicioSesion());
+                            session.setFechaFinSesion(s.getFechaFinSesion());
+                            return session;
+                        })
+                .collect(Collectors.toList())
+                )
+        );
 
         return extraClaims;
     }

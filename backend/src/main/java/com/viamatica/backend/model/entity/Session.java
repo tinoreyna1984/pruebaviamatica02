@@ -1,11 +1,10 @@
 package com.viamatica.backend.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.ColumnDefault;
 
 import java.util.Date;
 
@@ -19,7 +18,7 @@ public class Session {
     @Column(name = "session_id")
     private Long id;
 
-    @Column(nullable = true, length = 1024)
+    @Column(nullable = true, length = 10240)
     private String jwt;
 
     @Column(name = "fecha_inicio_sesion")
@@ -34,6 +33,6 @@ public class Session {
 
     @ManyToOne
     @JoinColumn(name="usuario_id", referencedColumnName = "usuario_id")
-    @JsonManagedReference
+    @JsonBackReference
     private User user;
 }

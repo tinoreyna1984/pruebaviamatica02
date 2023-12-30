@@ -1,1 +1,16 @@
-<p>Página principal</p>
+<div class="container">
+  <h1>Bienvenido, {{ this.userRealName }}</h1>
+  <div class="row">
+    <div class="card" style="width: 18rem">
+      <div class="card-body">
+        <h5 class="card-title">Estatus actual</h5>
+        <ul class="list-group">
+            <li class="list-group-item">Rol: {{this.userRole}}</li>
+            <li class="list-group-item">Email: {{this.userEmail}}</li>
+            <li class="list-group-item">Intentos de sesión: {{this.userFailedAttempts}}</li>
+            <li class="list-group-item">Fecha de última sesión: {{this.userLastSession.fechaFinSesion || ""}}</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
