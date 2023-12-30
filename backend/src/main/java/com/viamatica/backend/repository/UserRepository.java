@@ -15,4 +15,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
     public int getFailedAttempts(String username);
     @Query("SELECT u.accountNonLocked FROM User u WHERE u.username = ?1")
     public boolean isAccountNotLocked(String username);
+
+    // dashboard
+    @Query("SELECT count(*) FROM User u")
+    public long totalUsers();
+    @Query("SELECT count(*) FROM User u WHERE u.accountNonExpired = true")
+    public long totalActiveUsers();
+    @Query("SELECT count(*) FROM User u WHERE u.accountNonLocked = false")
+    public long totalLockedUsers();
 }

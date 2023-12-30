@@ -12,6 +12,7 @@ import { SharedModule } from '../shared/shared.module';
 import { MatCardModule } from '@angular/material/card';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
+import { DashboardComponent } from './components/dashboard/dashboard.component';
 
 
 
@@ -21,7 +22,8 @@ import { MatPaginatorModule } from '@angular/material/paginator';
     UsersPageComponent,
     AddUserComponent,
     ModifyUserComponent,
-    DeleteUserComponent
+    DeleteUserComponent,
+    DashboardComponent
   ],
   imports: [
     CommonModule,

@@ -49,4 +49,11 @@ public class UserController {
     public ResponseEntity<?> borrarUsuario(@PathVariable Long id){
         return userService.deleteUser(id);
     }
+
+
+    @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
+    @GetMapping("/dashboard")
+    public ResponseEntity<?> getDashboard(){
+        return userService.dashboard();
+    }
 }

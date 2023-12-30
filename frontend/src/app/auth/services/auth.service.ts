@@ -124,6 +124,15 @@ export class AuthService {
     return token !== null;
   }
 
+  getDashboard(){
+    const token = localStorage.getItem('jwt');
+    const headers = { 'Authorization': 'Bearer ' + token }
+    return this.http.get<any>(`${this.baseUrl}/dashboard`, { headers })
+    .pipe(
+      map((dashboard: any) => dashboard)
+    ); 
+  }
+
   // cierro sesión
   logout() {
     const token = localStorage.getItem('jwt');

@@ -175,4 +175,24 @@ public class UserService {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.ACCEPTED);
     }
 
+    public ResponseEntity<?> dashboard(){
+        Map<String, Object> response = new HashMap<>();
+        long totalUsers = 0L;
+        long activeUsers = 0L;
+        long lockedUsers = 0L;
+        try {
+            totalUsers = userRepository.totalUsers();
+            activeUsers = userRepository.totalActiveUsers();
+            lockedUsers = userRepository.totalLockedUsers();
+            response.put("total", totalUsers);
+            response.put("activos", activeUsers);
+            response.put("bloqueados", lockedUsers);
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
+        }catch(DataAccessException e) {
+            response.put("mensaje", "Error al realizar el delete en la base de datos");
+            response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }
