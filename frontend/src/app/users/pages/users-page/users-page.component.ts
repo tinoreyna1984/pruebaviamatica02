@@ -76,11 +76,14 @@ export class UsersPageComponent {
 
   onLoadFile() {
     const formData = new FormData();
+    if(this.archivoSeleccionado === null) return;
     formData.append('archivo', this.archivoSeleccionado);
+    this.loading = true;
     this.usersService.batchLoad(formData).subscribe(
       {
         next: (response: any) => {
           console.log(response);
+          this.loading = false;
           this.snackBar.openFromComponent(MessageSnackBarComponent, {
             duration: 3500,
             data: response,
@@ -89,6 +92,7 @@ export class UsersPageComponent {
         error: (e:any) => {
           console.error(e.message);
           Swal.fire('Error al cargar en lotes', "Razón: " + e.message + ". Consulta con el administrador, por favor.", 'error' );
+          this.loading = false;
         }
       }
     )

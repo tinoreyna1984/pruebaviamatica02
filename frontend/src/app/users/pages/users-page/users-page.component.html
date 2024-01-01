@@ -3,19 +3,21 @@
   <app-dashboard [loading]="this.loading"></app-dashboard>
 </div>
 
-<div class="row">
+<div class="row d-flex align-baseline my-2">
   <div class="col">
     <button
       type="button"
-      class="btn btn-success my-2"
+      class="btn btn-success"
       (click)="openAgregarUsuario()"
     >
       Agregar usuario
     </button>
   </div>
-  <div class="col d-flex">
-      <input type="file" (change)="onFileSelected($event)" />
-      <button type="button" class="btn btn-info my-2" (click)="onLoadFile()">Carga masiva</button>
+  <div class="col">
+    <form>
+      <input class="form-control mb-2" type="file" accept=".csv" (change)="onFileSelected($event)" />
+      <button type="button" class="btn btn-info" (click)="onLoadFile()">Carga masiva</button>
+    </form>
   </div>
 </div>
 <div class="mat-elevation-z8 table-responsive">

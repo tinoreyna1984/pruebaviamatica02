@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
-import { Observable, map } from 'rxjs';
+import { Observable, delay, map } from 'rxjs';
 import { User } from 'src/app/shared/interfaces/user.interface';
 
 @Injectable({
@@ -65,6 +65,7 @@ export class UsersService {
     const headers = { 'Authorization': 'Bearer ' + token, 'Accept': 'multipart/form-data' }
     return this.http.post(`${this.baseUrl}/csv`, formData, { headers, responseType: 'text'})
     .pipe(
+      //delay(1800), // prueba
       map((response: any) => response)
     );
   }

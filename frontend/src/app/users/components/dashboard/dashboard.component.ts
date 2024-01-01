@@ -18,12 +18,15 @@ export class DashboardComponent implements OnInit {
   total: number = 0;
 
   ngOnInit(): void {
+    this.loading = true;
     this.authService.getDashboard().subscribe({
       next: (dashboard: any) => {
         this.dashboard = dashboard;
+        //console.log(this.dashboard);
         this.total = this.dashboard.total;
-        this.active = this.dashboard.active || 0;
-        this.locked = this.dashboard.locked || 0;
+        this.active = this.dashboard.activos || 0;
+        this.locked = this.dashboard.bloqueados || 0;
+        this.loading = false;
       },
       error: (e: any) => {
         //console.error(e.message);
@@ -32,6 +35,7 @@ export class DashboardComponent implements OnInit {
           'Razón: ' + e.message + '. Consulta con el administrador, por favor.',
           'error'
         );
+        this.loading = false;
       },
     });
   }
