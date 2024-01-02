@@ -74,14 +74,13 @@
 ```
 
 ### Ejecución
-Desde el programa principal AcademiaApplication.java (con IntelliJ IDEA u otro IDE).
-También con el ejecutable de Maven si aplica.
+* Desde el programa principal AcademiaApplication.java (con IntelliJ IDEA u otro IDE).
+* También se puede usar el ejecutable de Maven si aplica.
+* NOTA: después de levantar el proyecto, ejecutar en PostgreSQL los archivos dentro de la carpeta postgresql del repositorio. Son funciones requeridas por el dashboard.
 
 ### Endpoints:
-Definidos en el archivo: Academia - Springboot.postman_collection.json (usarlo con Postman)
+Usar Swagger: http://localhost:4009/swagger-ui/index.html
 
-### Swagger:
-Probar en http://localhost:4009/swagger-ui/index.html
 
 ## Frontend
 

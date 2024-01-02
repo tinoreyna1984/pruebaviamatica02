@@ -19,8 +19,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
     // dashboard
     @Query("SELECT count(*) FROM User u")
     public long totalUsers();
-    @Query("SELECT count(*) FROM User u WHERE u.accountNonExpired = true")
+    //@Query("SELECT count(*) FROM User u WHERE u.accountNonExpired = true")
+    @Query(value = "SELECT totalActiveUsers()", nativeQuery = true)
     public long totalActiveUsers();
-    @Query("SELECT count(*) FROM User u WHERE u.accountNonLocked = false")
+    //@Query("SELECT count(*) FROM User u WHERE u.accountNonLocked = false")
+    @Query(value = "select totalLockedUsers()", nativeQuery = true)
     public long totalLockedUsers();
 }
