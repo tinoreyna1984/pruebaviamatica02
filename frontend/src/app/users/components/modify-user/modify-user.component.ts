@@ -55,8 +55,8 @@ export class ModifyUserComponent  implements OnInit {
           //console.error(e.message);
           this.loading = false;
           Swal.fire(
-            'Error en encontrar el producto',
-            'No se encuentra el producto con ID ' + this.usuarioID,
+            'Error en encontrar el usuario',
+            'No se encuentra el usuario con ID ' + this.usuarioID,
             'error'
           );
         },

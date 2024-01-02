@@ -73,12 +73,13 @@ public class AuthenticationController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegistrationRequest registrationRequest){
         Map<String, Object> response = new HashMap<>();
-        String jsonRequest = jsonSchemaValidatorUtil.convertObjectToJson(registrationRequest);
-        System.out.println(jsonRequest);
+
+        // proceso de validación (lo hace el servicio)
+        /*String jsonRequest = jsonSchemaValidatorUtil.convertObjectToJson(registrationRequest);
         if (!jsonSchemaValidatorUtil.validateJson(jsonRequest, "registration-request-schema.json")) {
             response.put("mensaje", "El JSON no cumple con el esquema de validación");
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-        }
+        }*/
 
         if(userRepository.findByUsername(registrationRequest.getUsername()).isPresent()){
             response.put("mensaje", "El nombre de usuario " + registrationRequest.getUsername() +" ya está en uso");

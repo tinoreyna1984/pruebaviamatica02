@@ -1,5 +1,6 @@
 package com.viamatica.backend.service;
 
+import com.networknt.schema.ValidationMessage;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvException;
@@ -26,6 +27,7 @@ import java.io.Reader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Service
 public class UserService {
@@ -97,9 +99,19 @@ public class UserService {
 
         // proceso de validación
         String jsonRequest = jsonSchemaValidatorUtil.convertObjectToJson(userRequest);
-        if (!jsonSchemaValidatorUtil.validateJson(jsonRequest, "user-schema.json")) {
+        /*if (!jsonSchemaValidatorUtil.validateJson(jsonRequest, "user-schema.json")) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST, "El JSON no cumple con el esquema de validación");
+        }*/
+        Set<ValidationMessage> validationResult =
+                jsonSchemaValidatorUtil.validateJson(jsonRequest, "user-schema.json");
+        StringBuilder messages = new StringBuilder();
+        if(!validationResult.isEmpty()){
+            for(ValidationMessage vm: validationResult){
+                messages.append(vm.getMessage()).append("\n");
+            }
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, messages.toString());
         }
 
         // encripta clave
@@ -135,9 +147,19 @@ public class UserService {
 
         // proceso de validación
         String jsonRequest = jsonSchemaValidatorUtil.convertObjectToJson(userRequest);
-        if (!jsonSchemaValidatorUtil.validateJson(jsonRequest, "user-schema.json")) {
+        /*if (!jsonSchemaValidatorUtil.validateJson(jsonRequest, "user-schema.json")) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST, "El JSON no cumple con el esquema de validación");
+        }*/
+        Set<ValidationMessage> validationResult =
+                jsonSchemaValidatorUtil.validateJson(jsonRequest, "user-schema.json");
+        StringBuilder messages = new StringBuilder();
+        if(!validationResult.isEmpty()){
+            for(ValidationMessage vm: validationResult){
+                messages.append(vm.getMessage()).append("\n");
+            }
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, messages.toString());
         }
 
         try {

@@ -24,7 +24,7 @@ public class JsonSchemaValidatorUtil {
         objectMapper = new ObjectMapper();
     }
 
-    public boolean validateJson(String json, String schemaFileName) {
+    public Set<ValidationMessage> validateJson(String json, String schemaFileName) {
         try {
             InputStream schemaInputStream = new ClassPathResource("schemas/" + schemaFileName).getInputStream();
             JsonSchema jsonSchema = schemaFactory.getSchema(schemaInputStream);
@@ -32,15 +32,17 @@ public class JsonSchemaValidatorUtil {
             JsonNode jsonNode = objectMapper.readTree(json);
             Set<ValidationMessage> validationResult = jsonSchema.validate(jsonNode);
             if(!validationResult.isEmpty()){
+                StringBuilder messages = new StringBuilder();
                 for(ValidationMessage vm: validationResult){
-                    System.out.println(vm);
+                    messages.append(vm.getMessage()).append("\n");
                 }
+                System.out.println(messages);
             }
 
-            return validationResult.isEmpty();
+            return validationResult;
         } catch (IOException e) {
             System.out.println(e.getMessage());
-            return false;
+            return null;
         }
     }
 

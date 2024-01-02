@@ -50,10 +50,10 @@ export class RegisterPageComponent {
       let status: number = error.error.status;
       this.errorMsg = error.error.message;
       if(status >= 500){
-        Swal.fire('Error en el acceso', "Razón: " + this.errorMsg + ". Consulta con el administrador, por favor", 'error' );
+        Swal.fire('Error en el registro', "Razón: " + this.errorMsg + ". Consulta con el administrador, por favor", 'error' );
       }
       else if(status >=400 && status < 500){
-        Swal.fire('Error en el acceso', this.errorMsg, 'error' );
+        Swal.fire('Error en el registro', this.errorMsg, 'error' );
       }
     } finally {
       this.loading = false; // Restaura el estado de carga a false, ya sea en éxito o error

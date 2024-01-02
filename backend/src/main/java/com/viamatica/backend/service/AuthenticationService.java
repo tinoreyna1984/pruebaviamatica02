@@ -1,5 +1,6 @@
 package com.viamatica.backend.service;
 
+import com.networknt.schema.ValidationMessage;
 import com.viamatica.backend.config.implementation.CustomUserDetails;
 import com.viamatica.backend.model.dto.request.AuthenticationRequest;
 import com.viamatica.backend.model.dto.request.RegistrationRequest;
@@ -7,16 +8,20 @@ import com.viamatica.backend.model.dto.response.AuthenticationResponse;
 import com.viamatica.backend.model.entity.Session;
 import com.viamatica.backend.model.entity.User;
 import com.viamatica.backend.repository.UserRepository;
+import com.viamatica.backend.util.JsonSchemaValidatorUtil;
 import com.viamatica.backend.util.Role;
 import com.viamatica.backend.util.Route;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,6 +33,9 @@ public class AuthenticationService {
     private UserRepository userRepository;
     @Autowired
     private JwtService jwtService;
+
+    @Autowired
+    private JsonSchemaValidatorUtil jsonSchemaValidatorUtil;
 
     private String crearEmailDesdeNombreUsuario(User user) {
         String[] fullLastName = user.getLastName().toLowerCase().split(" ");
@@ -59,6 +67,24 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse register(RegistrationRequest registrationRequest){
+
+        // proceso de validación
+        String jsonRequest = jsonSchemaValidatorUtil.convertObjectToJson(registrationRequest);
+        /*if (!jsonSchemaValidatorUtil.validateJson(jsonRequest, "user-schema.json")) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "El JSON no cumple con el esquema de validación");
+        }*/
+        Set<ValidationMessage> validationResult =
+                jsonSchemaValidatorUtil.validateJson(jsonRequest, "user-schema.json");
+        StringBuilder messages = new StringBuilder();
+        if(!validationResult.isEmpty()){
+            for(ValidationMessage vm: validationResult){
+                messages.append(vm.getMessage()).append("\n");
+            }
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, messages.toString());
+        }
+
         User user = new User();
         user.setUsername(registrationRequest.getUsername());
         user.setPassword(registrationRequest.getPassword());
