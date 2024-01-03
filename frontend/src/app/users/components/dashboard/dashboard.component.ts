@@ -12,6 +12,7 @@ export class DashboardComponent implements OnInit {
 
   @Input() loading: boolean = false;
 
+  errorMsg: string = '';
   dashboard: any;
   active: number = 0;
   locked: number = 0;
@@ -29,12 +30,47 @@ export class DashboardComponent implements OnInit {
         this.loading = false;
       },
       error: (e: any) => {
-        //console.error(e.message);
-        Swal.fire(
-          'Error en la carga',
-          'Razón: ' + e.message + '. Consulta con el administrador, por favor.',
-          'error'
-        );
+        console.error(e);
+        let status: number = e.status;
+        this.errorMsg = e.error.mensaje;
+        if(status >= 500){
+          Swal.fire('Error en el acceso', "Razón: " + this.errorMsg + ". Consulta con el administrador, por favor", 'error' );
+        }
+        else if(status >=400 && status < 500){
+          Swal.fire('Error en el acceso', this.errorMsg, 'error' );
+        }
+        else{
+          Swal.fire('Error en el acceso', "Error desconocido. Consulta con el administrador, por favor.", 'error' );
+        }
+        this.loading = false;
+      },
+    });
+  }
+
+  onRefreshDashboard(){
+    this.loading = true;
+    this.authService.getDashboard().subscribe({
+      next: (dashboard: any) => {
+        this.dashboard = dashboard;
+        //console.log(this.dashboard);
+        this.total = this.dashboard.total;
+        this.active = this.dashboard.activos || 0;
+        this.locked = this.dashboard.bloqueados || 0;
+        this.loading = false;
+      },
+      error: (e: any) => {
+        console.error(e);
+        let status: number = e.status;
+        this.errorMsg = e.error.mensaje;
+        if(status >= 500){
+          Swal.fire('Error en el acceso', "Razón: " + this.errorMsg + ". Consulta con el administrador, por favor", 'error' );
+        }
+        else if(status >=400 && status < 500){
+          Swal.fire('Error en el acceso', this.errorMsg, 'error' );
+        }
+        else{
+          Swal.fire('Error en el acceso', "Error desconocido. Consulta con el administrador, por favor.", 'error' );
+        }
         this.loading = false;
       },
     });

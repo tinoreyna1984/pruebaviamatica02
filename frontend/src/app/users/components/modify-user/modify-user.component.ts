@@ -19,6 +19,7 @@ export class ModifyUserComponent  implements OnInit {
   private usuario!: User;
   loading: boolean = false;
 
+  errorMsg: string = '';
   formModifyUsuario: FormGroup;
 
   constructor() {
@@ -37,9 +38,10 @@ export class ModifyUserComponent  implements OnInit {
     this.loading = true;
     setTimeout(() => {
       this.usersService.getUser(this.usuarioID).subscribe({
-        next: (response: User) => {
+        next: (response: any) => {
+          //console.log(response.usuario);
           this.loading = false;
-          this.usuario = response;
+          this.usuario = response.usuario;
           //console.log(this.usuario);
           this.formModifyUsuario.patchValue({
             name: this.usuario.name,
@@ -86,12 +88,18 @@ export class ModifyUserComponent  implements OnInit {
         });
       },
       error: (e: any) => {
-        //console.error(e.message);
-        Swal.fire(
-          'Error al modificar usuario',
-          'Razón: ' + e.message + '. Consulta con el administrador, por favor.',
-          'error'
-        );
+        //console.error(e);
+        let status: number = e.status;
+        this.errorMsg = e.error.mensaje;
+        if(status >= 500){
+          Swal.fire('Error al modificar usuario', "Razón: " + this.errorMsg + ". Consulta con el administrador, por favor", 'error' );
+        }
+        else if(status >=400 && status < 500){
+          Swal.fire('Error al modificar usuario', this.errorMsg, 'error' );
+        }
+        else{
+          Swal.fire('Error al modificar usuario', "Error desconocido. Consulta con el administrador, por favor.", 'error' );
+        }
       },
     });
   }

@@ -45,6 +45,7 @@ export class UsersPageComponent {
     'borrar',
   ];
 
+  errorMsg: string = '';
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   archivoSeleccionado: any = null;
@@ -54,18 +55,20 @@ export class UsersPageComponent {
     this.loading = true;
     this.isAdminFlag = this.authService.isAdmin();
     this.usersService.getUsers().subscribe({
-      next: (usuarios: User[]) => {
-        this.dataSource = new MatTableDataSource<User>(usuarios);
+      next: (res: any) => {
+        //console.log(res.usuarios);
+        this.dataSource = new MatTableDataSource<User>(res.usuarios);
         this.dataSource.paginator = this.paginator;
         this.loading = false;
       },
       error: (e: any) => {
-        //console.error(e.message);
+        console.error(e);
         Swal.fire(
           'Error en la carga',
           'Razón: ' + e.message + '. Consulta con el administrador, por favor.',
           'error'
         );
+        this.loading = false;
       },
     });
   }
@@ -76,26 +79,59 @@ export class UsersPageComponent {
 
   onLoadFile() {
     const formData = new FormData();
-    if(this.archivoSeleccionado === null) return;
+    if (this.archivoSeleccionado === null) return;
     formData.append('archivo', this.archivoSeleccionado);
     this.loading = true;
-    this.usersService.batchLoad(formData).subscribe(
-      {
-        next: (response: any) => {
-          console.log(response);
-          this.loading = false;
-          this.snackBar.openFromComponent(MessageSnackBarComponent, {
-            duration: 3500,
-            data: response,
-          });
-        },
-        error: (e:any) => {
-          console.error(e.message);
-          Swal.fire('Error al cargar en lotes', "Razón: " + e.message + ". Consulta con el administrador, por favor.", 'error' );
-          this.loading = false;
+    this.usersService.batchLoad(formData).subscribe({
+      next: (response: any) => {
+        console.log(response);
+        this.snackBar.openFromComponent(MessageSnackBarComponent, {
+          duration: 3500,
+          data: response,
+        });
+        this.usersService.getUsers().subscribe({
+          next: (res: any) => {
+            console.log(res.usuarios);
+            this.dataSource = new MatTableDataSource<User>(res.usuarios);
+            this.dataSource.paginator = this.paginator;
+          },
+          error: (e: any) => {
+            console.error(e);
+            Swal.fire(
+              'Error en la carga',
+              'Razón: ' +
+                e.message +
+                '. Consulta con el administrador, por favor.',
+              'error'
+            );
+          },
+        });
+        this.loading = false;
+      },
+      error: (e: any) => {
+        console.error(e);
+        let status: number = e.status;
+        this.errorMsg = e.error;
+        if (status >= 500) {
+          Swal.fire(
+            'Error al cargar en lotes',
+            'Razón: ' +
+              this.errorMsg +
+              '. Consulta con el administrador, por favor',
+            'error'
+          );
+        } else if (status >= 400 && status < 500) {
+          Swal.fire('Error al cargar en lotes', this.errorMsg, 'error');
+        } else {
+          Swal.fire(
+            'Error al agregar usuario',
+            'Error desconocido. Consulta con el administrador, por favor.',
+            'error'
+          );
         }
-      }
-    )
+        this.loading = false;
+      },
+    });
   }
 
   openAgregarUsuario() {
@@ -110,8 +146,27 @@ export class UsersPageComponent {
       setTimeout(() => {
         this.usersService.getUsers().subscribe({
           next: (users: User[]) => {
-            this.dataSource.data = users;
-            this.loading = false;
+            /* this.dataSource.data = users;
+            this.loading = false; */
+            this.usersService.getUsers().subscribe({
+              next: (res: any) => {
+                //console.log(res.usuarios);
+                this.dataSource = new MatTableDataSource<User>(res.usuarios);
+                this.dataSource.paginator = this.paginator;
+                this.loading = false;
+              },
+              error: (e: any) => {
+                console.error(e);
+                Swal.fire(
+                  'Error en la carga',
+                  'Razón: ' +
+                    e.message +
+                    '. Consulta con el administrador, por favor.',
+                  'error'
+                );
+                this.loading = false;
+              },
+            });
           },
           error: (e: any) => {
             //console.error(e.message);
@@ -123,6 +178,7 @@ export class UsersPageComponent {
                 '. Consulta con el administrador, por favor.',
               'error'
             );
+            this.loading = false;
           },
         });
       }, 1800);
@@ -142,8 +198,27 @@ export class UsersPageComponent {
       setTimeout(() => {
         this.usersService.getUsers().subscribe({
           next: (usuarios: User[]) => {
-            this.dataSource.data = usuarios;
-            this.loading = false;
+            /* this.dataSource.data = usuarios;
+            this.loading = false; */
+            this.usersService.getUsers().subscribe({
+              next: (res: any) => {
+                //console.log(res.usuarios);
+                this.dataSource = new MatTableDataSource<User>(res.usuarios);
+                this.dataSource.paginator = this.paginator;
+                this.loading = false;
+              },
+              error: (e: any) => {
+                console.error(e);
+                Swal.fire(
+                  'Error en la carga',
+                  'Razón: ' +
+                    e.message +
+                    '. Consulta con el administrador, por favor.',
+                  'error'
+                );
+                this.loading = false;
+              },
+            });
           },
           error: (e: any) => {
             //console.error(e.message);
@@ -154,6 +229,7 @@ export class UsersPageComponent {
                 '. Consulta con el administrador, por favor.',
               'error'
             );
+            this.loading = false;
           },
         });
       }, 1800);
@@ -173,8 +249,27 @@ export class UsersPageComponent {
       setTimeout(() => {
         this.usersService.getUsers().subscribe({
           next: (usuarios: User[]) => {
-            this.dataSource.data = usuarios;
-            this.loading = false;
+            /* this.dataSource.data = usuarios;
+            this.loading = false; */
+            this.usersService.getUsers().subscribe({
+              next: (res: any) => {
+                //console.log(res.usuarios);
+                this.dataSource = new MatTableDataSource<User>(res.usuarios);
+                this.dataSource.paginator = this.paginator;
+                this.loading = false;
+              },
+              error: (e: any) => {
+                console.error(e);
+                Swal.fire(
+                  'Error en la carga',
+                  'Razón: ' +
+                    e.message +
+                    '. Consulta con el administrador, por favor.',
+                  'error'
+                );
+                this.loading = false;
+              },
+            });
           },
           error: (e: any) => {
             //console.error(e.message);
@@ -185,6 +280,7 @@ export class UsersPageComponent {
                 '. Consulta con el administrador, por favor.',
               'error'
             );
+            this.loading = false;
           },
         });
       }, 1800);

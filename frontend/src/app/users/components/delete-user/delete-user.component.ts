@@ -18,20 +18,32 @@ export class DeleteUserComponent {
     private snackBar: MatSnackBar
   ) {}
 
+  errorMsg: string = '';
   usuario?: User;
 
   onBorrarUsuario() {
     this.usersService.borrarUser(this.userID).subscribe(
       {
         next: (response: any) => {
+          console.log(response);
           this.snackBar.openFromComponent(MessageSnackBarComponent, {
             duration: 3500,
             data: response.mensaje,
           });
         },
         error: (e:any) => {
-          //console.error(e.message);
-          Swal.fire('Error al borrar usuario', "Razón: " + e.message + ". Consulta con el administrador, por favor.", 'error' );
+          console.error(e);
+          let status: number = e.status;
+          this.errorMsg = e.error;
+          if(status >= 500){
+            Swal.fire('Error al borrar usuario', "Razón: " + this.errorMsg + ". Consulta con el administrador, por favor", 'error' );
+          }
+          else if(status >=400 && status < 500){
+            Swal.fire('Error al borrar usuario', this.errorMsg, 'error' );
+          }
+          else{
+            Swal.fire('Error al borrar usuario', "Error desconocido. Consulta con el administrador, por favor.", 'error' );
+          }
         }
       }
       

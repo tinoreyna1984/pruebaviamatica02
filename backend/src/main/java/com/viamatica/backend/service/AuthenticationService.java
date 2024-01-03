@@ -7,21 +7,21 @@ import com.viamatica.backend.model.dto.request.RegistrationRequest;
 import com.viamatica.backend.model.dto.response.AuthenticationResponse;
 import com.viamatica.backend.model.entity.Session;
 import com.viamatica.backend.model.entity.User;
+import com.viamatica.backend.repository.SessionRepository;
 import com.viamatica.backend.repository.UserRepository;
 import com.viamatica.backend.util.JsonSchemaValidatorUtil;
 import com.viamatica.backend.util.Role;
-import com.viamatica.backend.util.Route;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,10 +32,22 @@ public class AuthenticationService {
     @Autowired
     private UserRepository userRepository;
     @Autowired
+    private SessionRepository sessionRepository;
+    @Autowired
     private JwtService jwtService;
+
+    // codificador de password
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private JsonSchemaValidatorUtil jsonSchemaValidatorUtil;
+
+    private void encriptarClaveUsuario(User user) {
+        String claveEncriptada = passwordEncoder.encode(user.getPassword());
+        user.setPassword(claveEncriptada);
+    }
+
 
     private String crearEmailDesdeNombreUsuario(User user) {
         String[] fullLastName = user.getLastName().toLowerCase().split(" ");
@@ -68,14 +80,18 @@ public class AuthenticationService {
 
     public AuthenticationResponse register(RegistrationRequest registrationRequest){
 
+        // proceso de validación (lo hace el servicio)
+        if(userRepository.findByUsername(registrationRequest.getUsername()).isPresent()){
+            /*response.put("mensaje", "El nombre de usuario " + registrationRequest.getUsername() +" ya está en uso");
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);*/
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "El nombre de usuario " + registrationRequest.getUsername() +" ya está en uso");
+        }
+
         // proceso de validación
         String jsonRequest = jsonSchemaValidatorUtil.convertObjectToJson(registrationRequest);
-        /*if (!jsonSchemaValidatorUtil.validateJson(jsonRequest, "user-schema.json")) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "El JSON no cumple con el esquema de validación");
-        }*/
         Set<ValidationMessage> validationResult =
-                jsonSchemaValidatorUtil.validateJson(jsonRequest, "user-schema.json");
+                jsonSchemaValidatorUtil.validateJson(jsonRequest, "registration-request-schema.json");
         StringBuilder messages = new StringBuilder();
         if(!validationResult.isEmpty()){
             for(ValidationMessage vm: validationResult){
@@ -85,22 +101,32 @@ public class AuthenticationService {
                     HttpStatus.BAD_REQUEST, messages.toString());
         }
 
+        User user = registrationRequestToUser(registrationRequest);
+
+        try {
+            userRepository.save(user);
+            String jwt = jwtService.generateToken(user, generateExtraClaims(user));
+            return new AuthenticationResponse(jwt);
+        } catch(DataAccessException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.INTERNAL_SERVER_ERROR, "Error al realizar la consulta en la base de datos: " + e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
+        }
+    }
+
+    private User registrationRequestToUser(RegistrationRequest registrationRequest) {
         User user = new User();
         user.setUsername(registrationRequest.getUsername());
         user.setPassword(registrationRequest.getPassword());
+        encriptarClaveUsuario(user);
         user.setAccessId(registrationRequest.getAccessId());
         user.setName(registrationRequest.getName());
         user.setLastName(registrationRequest.getLastName());
-        String email = crearEmailDesdeNombreUsuario(user);
-        //user.setEmail(registrationRequest.getEmail());
-        user.setEmail(email);
+        user.setEmail(crearEmailDesdeNombreUsuario(user));
         if(registrationRequest.getRole() == null)
             user.setRole(Role.USER);
         else
             user.setRole(registrationRequest.getRole());
-        userRepository.save(user);
-        String jwt = jwtService.generateToken(user, generateExtraClaims(user));
-        return new AuthenticationResponse(jwt);
+        return user;
     }
 
     private Map<String, Object> generateExtraClaims(User user) {
@@ -121,22 +147,27 @@ public class AuthenticationService {
                         .getRoutes().stream()
                         .map(route -> Map.of("name", route.getName(), "path", route.getPath()))
                         .collect(Collectors.toList())); // rutas
-        extraClaims.put("lastSessions", new ArrayList<>(
-                user
-                .getSessions()
-                        .stream().filter(s -> s.getFechaFinSesion() != null)
-                        .map(s -> {
-                            Session session = new Session();
-                            session.setJwt("");
-                            session.setId(s.getId());
-                            session.setUser(s.getUser());
-                            session.setFechaInicioSesion(s.getFechaInicioSesion());
-                            session.setFechaFinSesion(s.getFechaFinSesion());
-                            return session;
-                        })
-                .collect(Collectors.toList())
-                )
-        );
+        if(user.getSessions() != null){ // si el usuario ya existe y vuelve a iniciar sesión
+            extraClaims.put("lastSessions", new ArrayList<>(
+                            user
+                                    .getSessions()
+                                    .stream().filter(s -> s.getFechaFinSesion() != null)
+                                    .map(s -> {
+                                        Session session = new Session();
+                                        session.setJwt("");
+                                        session.setId(s.getId());
+                                        session.setUser(s.getUser());
+                                        session.setFechaInicioSesion(s.getFechaInicioSesion());
+                                        session.setFechaFinSesion(s.getFechaFinSesion());
+                                        return session;
+                                    })
+                                    .collect(Collectors.toList())
+                    )
+            );
+        }
+        else { // soluciona el error en el registro
+            extraClaims.put("lastSessions", "no previous sessions");
+        }
 
         return extraClaims;
     }

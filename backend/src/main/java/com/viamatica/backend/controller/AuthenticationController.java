@@ -42,11 +42,6 @@ public class AuthenticationController {
     @Autowired
     private JsonSchemaValidatorUtil jsonSchemaValidatorUtil;
 
-    private void encriptarClaveUsuario(RegistrationRequest registrationRequest) {
-        String claveEncriptada = passwordEncoder.encode(registrationRequest.getPassword());
-        registrationRequest.setPassword(claveEncriptada);
-    }
-
     @PreAuthorize("permitAll")
     @PostMapping("/authenticate")
     public ResponseEntity<?> login(@RequestBody AuthenticationRequest authRequest){
@@ -54,17 +49,15 @@ public class AuthenticationController {
 
         try{
             AuthenticationResponse jwtDto = authenticationService.login(authRequest);
-            sessionService.creaSesion(authRequest, jwtDto.getJwt()); // paso JWT
+            sessionService.creaSesion(authRequest.getUsername(), jwtDto.getJwt()); // paso JWT
             response.put("mensaje", "Se ha dado acceso al usuario");
             response.put("jwt", jwtDto.getJwt());
             return new ResponseEntity<>(response, HttpStatus.OK);
         }catch (DataAccessException e) {
-            response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
-            response.put("mensaje", "Error al iniciar sesión en la base de datos");
+            response.put("mensaje", "Error al realizar la consulta en la base de datos: " + e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }catch (AuthenticationException e) {
-            response.put("error", e.getMessage());
-            response.put("mensaje", "Error en autenticación");
+            response.put("mensaje", "Error en autenticación: " + e.getMessage());
             return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
         }
     }
@@ -73,27 +66,13 @@ public class AuthenticationController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegistrationRequest registrationRequest){
         Map<String, Object> response = new HashMap<>();
-
-        // proceso de validación (lo hace el servicio)
-        /*String jsonRequest = jsonSchemaValidatorUtil.convertObjectToJson(registrationRequest);
-        if (!jsonSchemaValidatorUtil.validateJson(jsonRequest, "registration-request-schema.json")) {
-            response.put("mensaje", "El JSON no cumple con el esquema de validación");
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-        }*/
-
-        if(userRepository.findByUsername(registrationRequest.getUsername()).isPresent()){
-            response.put("mensaje", "El nombre de usuario " + registrationRequest.getUsername() +" ya está en uso");
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-        }
         try{
-            encriptarClaveUsuario(registrationRequest);
             AuthenticationResponse jwtDto = authenticationService.register(registrationRequest);
             response.put("mensaje", "El usuario ha sido registrado con éxito");
             response.put("jwt", jwtDto.getJwt());
             return new ResponseEntity<>(response, HttpStatus.CREATED);
         }catch (DataAccessException e) {
-            response.put("mensaje", "Error al registrar el usuario en la base de datos");
-            response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
+            response.put("mensaje",  "Error al registrar el usuario en la base de datos: " + e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

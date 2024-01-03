@@ -42,11 +42,15 @@ public class UserService {
     @Autowired
     private JsonSchemaValidatorUtil jsonSchemaValidatorUtil;
 
-    private void encriptarClaveUsuario(UserRequest userRequest) {
+    private void encriptarClaveUserRequest(UserRequest userRequest) {
         String claveEncriptada = passwordEncoder.encode(userRequest.getPassword());
         userRequest.setPassword(claveEncriptada);
     }
 
+    private void encriptarClaveUsuario(User user) {
+        String claveEncriptada = passwordEncoder.encode(user.getPassword());
+        user.setPassword(claveEncriptada);
+    }
 
     private String crearEmailDesdeNombreUsuario(UserRequest userRequest) {
         String[] fullLastName = userRequest.getLastName().toLowerCase().split(" ");
@@ -62,16 +66,27 @@ public class UserService {
         return email;
     }
 
-    public ResponseEntity<Object> getUsers(Integer page, Integer size){
-        if (page != null && size != null) {
-            // Si se proporcionan los parámetros de paginación, devuelve una lista paginada
-            Pageable pageable = PageRequest.of(page, size);
-            Page<User> pageResult = userRepository.findAll(pageable);
-            return ResponseEntity.ok(pageResult);
-        } else {
-            // Si no se proporcionan los parámetros de paginación, devuelve una lista completa
-            List<User> users = userRepository.findAll();
-            return ResponseEntity.ok(users);
+    public ResponseEntity<?> getUsers(Integer page, Integer size){
+        Map<String, Object> response = new HashMap<>();
+        try{
+            if (page != null && size != null) {
+                // Si se proporcionan los parámetros de paginación, devuelve una lista paginada
+                Pageable pageable = PageRequest.of(page, size);
+                Page<User> pageResult = userRepository.findAll(pageable);
+                //return ResponseEntity.ok(pageResult);
+                response.put("mensaje", "La lista de usuarios se consultó con éxito");
+                response.put("usuarios", pageResult);
+            } else {
+                // Si no se proporcionan los parámetros de paginación, devuelve una lista completa
+                List<User> users = userRepository.findAll();
+                //return ResponseEntity.ok(users);
+                response.put("mensaje", "La lista de usuarios se consultó con éxito");
+                response.put("usuarios", users);
+            }
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
+        } catch (DataAccessException e){
+            response.put("mensaje", "Error al realizar la consulta en la base de datos: " + e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -82,11 +97,12 @@ public class UserService {
         try {
             usuario = userRepository.findById(id).get();
         }catch(DataAccessException e) {
-            response.put("mensaje", "Error al realizar la consulta en la base de datos");
-            response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
+            response.put("mensaje", "Error al realizar la consulta en la base de datos: " + e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<User>(usuario, HttpStatus.OK);
+        response.put("mensaje", "Se encontró el usuario solicitado");
+        response.put("usuario", usuario);
+        return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }
 
     public ResponseEntity<?> saveUser(UserRequest userRequest){
@@ -99,10 +115,6 @@ public class UserService {
 
         // proceso de validación
         String jsonRequest = jsonSchemaValidatorUtil.convertObjectToJson(userRequest);
-        /*if (!jsonSchemaValidatorUtil.validateJson(jsonRequest, "user-schema.json")) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "El JSON no cumple con el esquema de validación");
-        }*/
         Set<ValidationMessage> validationResult =
                 jsonSchemaValidatorUtil.validateJson(jsonRequest, "user-schema.json");
         StringBuilder messages = new StringBuilder();
@@ -110,47 +122,41 @@ public class UserService {
             for(ValidationMessage vm: validationResult){
                 messages.append(vm.getMessage()).append("\n");
             }
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, messages.toString());
+            response.put("mensaje", messages.toString());
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.BAD_REQUEST);
         }
 
         // encripta clave
-        encriptarClaveUsuario(userRequest);
+        encriptarClaveUserRequest(userRequest);
+        // crea email a partir de datos del usuario
+        userRequest.setEmail(crearEmailDesdeNombreUsuario(userRequest));
 
         usuarioNuevo.setName(userRequest.getName());
         usuarioNuevo.setLastName(userRequest.getLastName());
         usuarioNuevo.setEmail(userRequest.getEmail());
+        usuarioNuevo.setAccessId(userRequest.getAccessId());
         usuarioNuevo.setUsername(userRequest.getUsername());
         usuarioNuevo.setPassword(userRequest.getPassword());
         usuarioNuevo.setRole(userRequest.getRole());
 
         try {
-            String email = crearEmailDesdeNombreUsuario(userRequest);
-            userRequest.setEmail(email);
             usuarioNuevo = userRepository.save(usuarioNuevo);
         } catch(DataAccessException e) {
-            response.put("mensaje", "Error al realizar el insert en la base de datos");
-            response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
+            response.put("mensaje", "Error al realizar la consulta en la base de datos: " + e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
         response.put("mensaje", "El usuario ha sido creado con éxito");
         response.put("usuario", usuarioNuevo);
-
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
     }
 
     public ResponseEntity<?> updateUser(UserRequest userRequest, Long id){
-        User usuarioActual = userRepository.findById(id).get();
-        User usuarioEditado = null;
+
         Map<String, Object> response = new HashMap<>();
 
         // proceso de validación
         String jsonRequest = jsonSchemaValidatorUtil.convertObjectToJson(userRequest);
-        /*if (!jsonSchemaValidatorUtil.validateJson(jsonRequest, "user-schema.json")) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "El JSON no cumple con el esquema de validación");
-        }*/
         Set<ValidationMessage> validationResult =
                 jsonSchemaValidatorUtil.validateJson(jsonRequest, "user-schema.json");
         StringBuilder messages = new StringBuilder();
@@ -158,33 +164,34 @@ public class UserService {
             for(ValidationMessage vm: validationResult){
                 messages.append(vm.getMessage()).append("\n");
             }
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, messages.toString());
+            response.put("mensaje", messages.toString());
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.BAD_REQUEST);
         }
 
+        User usuarioActual = userRepository.findById(id).get();
+        User usuarioEditado = null;
         try {
             usuarioActual.setName(userRequest.getName());
             usuarioActual.setLastName(userRequest.getLastName());
             usuarioActual.setEmail(userRequest.getEmail());
             usuarioActual.setUsername(userRequest.getUsername());
-            // encripta clave
-            encriptarClaveUsuario(userRequest);
+            usuarioActual.setAccessId(userRequest.getAccessId());
             usuarioActual.setPassword(userRequest.getPassword());
             // si no viaja el ROL, por defecto debe ser el de USUARIO
             if(userRequest.getRole() == null)
                 usuarioActual.setRole(Role.USER);
             else
                 usuarioActual.setRole(userRequest.getRole());
+            // encripta clave
+            encriptarClaveUsuario(usuarioActual);
             usuarioEditado = userRepository.save(usuarioActual);
         } catch(DataAccessException e) {
-            response.put("mensaje", "Error al realizar el update en la base de datos");
-            response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
+            response.put("mensaje", "Error al realizar la consulta en la base de datos: " + e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
         response.put("mensaje", "El usuario ha sido editado con éxito");
         response.put("usuario", usuarioEditado);
-
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.ACCEPTED);
     }
 
@@ -194,13 +201,11 @@ public class UserService {
         try {
             userRepository.deleteById(id);
         }catch(DataAccessException e) {
-            response.put("mensaje", "Error al realizar el delete en la base de datos");
-            response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
+            response.put("mensaje", "Error al realizar la consulta en la base de datos: " + e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
         response.put("mensaje", "El usuario ha sido eliminado con éxito");
-
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.ACCEPTED);
     }
 
@@ -218,8 +223,7 @@ public class UserService {
             response.put("bloqueados", lockedUsers);
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
         }catch(DataAccessException e) {
-            response.put("mensaje", "Error al realizar el delete en la base de datos");
-            response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
+            response.put("mensaje", "Error al realizar la consulta en la base de datos: " + e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -235,7 +239,7 @@ public class UserService {
                 UserRequest userRequest = pasarValores(fila);
                 User user = new User();
                 user.setUsername(userRequest.getUsername());
-                encriptarClaveUsuario(userRequest);
+                encriptarClaveUserRequest(userRequest);
                 user.setPassword(userRequest.getPassword());
                 user.setAccessId(userRequest.getAccessId());
                 user.setEmail(userRequest.getEmail());
@@ -246,6 +250,9 @@ public class UserService {
             }
         } catch (CsvException e) {
             throw new RuntimeException(e);
+        } catch (DataAccessException e){
+            throw new ResponseStatusException(
+                    HttpStatus.INTERNAL_SERVER_ERROR, "Error de acceso a datos");
         }
     }
 

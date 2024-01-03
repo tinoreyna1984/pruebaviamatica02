@@ -15,6 +15,7 @@ export class AddUserComponent {
   private usersService = inject(UsersService);
   private snackBar = inject(MatSnackBar);
 
+  errorMsg: string = '';
   formAddUsuario: FormGroup;
 
   constructor() {
@@ -44,8 +45,18 @@ export class AddUserComponent {
           });
         },
         error: (e:any) => {
-          console.error(e.message);
-          Swal.fire('Error al agregar usuario', "Razón: " + e.message + ". Consulta con el administrador, por favor.", 'error' );
+          console.error(e);
+          let status: number = e.status;
+          this.errorMsg = e.error.mensaje;
+          if(status >= 500){
+            Swal.fire('Error al agregar usuario', "Razón: " + this.errorMsg + ". Consulta con el administrador, por favor", 'error' );
+          }
+          else if(status >=400 && status < 500){
+            Swal.fire('Error al agregar usuario', this.errorMsg, 'error' );
+          }
+          else{
+            Swal.fire('Error al agregar usuario', "Error desconocido. Consulta con el administrador, por favor.", 'error' );
+          }
         }
       }
     )

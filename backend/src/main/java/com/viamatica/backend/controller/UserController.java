@@ -22,7 +22,7 @@ public class UserController {
     @PreAuthorize("hasAnyRole('ROLE_ADMINISTRATOR','ROLE_USER')")
     @GetMapping("/users")
     // devuelve una lista completa o paginada si viajan parámetros de paginación
-    public ResponseEntity<Object> listarUsuarios(
+    public ResponseEntity<?> listarUsuarios(
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size) {
         return userService.getUsers(page, size);

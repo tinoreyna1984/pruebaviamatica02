@@ -40,13 +40,17 @@ export class LoginPageComponent {
         this.router.navigate(['/main']); // dirige a la página "/main"
       }
     } catch (error: any) {
-      let status: number = error.error.status;
-      this.errorMsg = error.error.message;
+      console.log(error);
+      let status: number = error.status;
+      this.errorMsg = error.error.mensaje;
       if(status >= 500){
         Swal.fire('Error en el acceso', "Razón: " + this.errorMsg + ". Consulta con el administrador, por favor", 'error' );
       }
       else if(status >=400 && status < 500){
         Swal.fire('Error en el acceso', this.errorMsg, 'error' );
+      }
+      else{
+        Swal.fire('Error en el acceso', "Error desconocido. Consulta con el administrador, por favor", 'error' );
       }
     } finally {
       this.loading = false; // Restaura el estado de carga a false, ya sea en éxito o error
