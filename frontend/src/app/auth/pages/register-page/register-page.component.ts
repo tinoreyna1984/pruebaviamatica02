@@ -47,7 +47,7 @@ export class RegisterPageComponent {
         this.router.navigate(['/main']); // dirige a la página "/main"
       }
     } catch (error: any) {
-      console.log(error);
+      // console.log(error);
       let status: number = error.status;
       this.errorMsg = error.error.message;
       if(status >= 500){

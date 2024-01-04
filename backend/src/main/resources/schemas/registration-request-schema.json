@@ -29,7 +29,7 @@
       "minLength": 10,
       "maxLength": 10,
       "message": {
-        "pattern" : "La ID de acceso debe ser numérica y ninguna cifra debe repetirse cuatro veces consecutivas.",
+        "pattern" : "La ID de acceso debe ser numérica de longitud exacta de 10 números y ninguna cifra debe repetirse cuatro veces consecutivas.",
         "minLength": "La ID de acceso debe ser exactamente de 10 números.",
         "maxLength": "La ID de acceso debe ser exactamente de 10 números."
       }
