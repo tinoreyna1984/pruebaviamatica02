@@ -25,13 +25,13 @@
     },
     "accessId": {
       "type": "string",
-      "pattern": "^(?!.*(\\d)\\1{3})\\d{10}$",
+      "pattern": "^(?!.*(\\d)\\1{3})",
       "minLength": 10,
       "maxLength": 10,
       "message": {
-        "pattern" : "La ID de acceso debe ser numérica de longitud exacta de 10 números y ninguna cifra debe repetirse cuatro veces consecutivas.",
-        "minLength": "La ID de acceso debe ser exactamente de 10 números.",
-        "maxLength": "La ID de acceso debe ser exactamente de 10 números."
+        "pattern" : "La ID de acceso debe ser numérica y ninguna cifra debe repetirse cuatro veces consecutivas.",
+        "minLength": "La ID de acceso debe tener mínimo 10 números.",
+        "maxLength": "La ID de acceso debe tener máximo 10 números."
       }
     },
     "name": {
