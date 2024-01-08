@@ -1,4 +1,4 @@
-package com.viamatica.backend.util;
+package com.viamatica.backend.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;

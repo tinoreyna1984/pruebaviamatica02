@@ -77,6 +77,7 @@
 * Desde el programa principal AcademiaApplication.java (con IntelliJ IDEA u otro IDE).
 * También se puede usar el ejecutable de Maven si aplica.
 * NOTA: después de levantar el proyecto, ejecutar en PostgreSQL los archivos dentro de la carpeta postgresql del repositorio. Son funciones requeridas por el dashboard.
+* Después de levantar el servicio, ejecutar en PostgreSQL los scripts totalActiveUsers.sql y totalLockedUsers.sql (requerido para el dashboard).
 
 ### Endpoints:
 Usar Swagger: http://localhost:4009/swagger-ui/index.html
@@ -91,6 +92,44 @@ Usar Swagger: http://localhost:4009/swagger-ui/index.html
 * Sweet Alert 2
 * JWT Decode
 
+## Docker
+
+### Creación independiente de contenedores
+* Backend: desde la carpeta backend, ejecutar:
+```bash
+docker-compose up
+```
+* Frontend:  desde la carpeta backend, ejecutar:
+```bash
+docker-compose up
+```
+* Asegurarse de que ambos servicios estén levantados
+* Acceder al esquema del backend y ejecutar los scripts totalActiveUsers.sql y totalLockedUsers.sql (requerido para el dashboard):
+```bash
+docker ps -a
+docker exec -it <id de contenedor de postgres creado> bash
+psql -d pruebaviamatica02 -U postgres
+# Copiar y pegar los scripts de ambos archivos y ejecutarlos
+```
+* Desde el navegador, ir a http://localhost:4200
+* También funciona Swagger en la misma ruta señalada líneas arriba
+
+### Creación desde raíz
+* Ir a la raíz del proyecto y ejecutar:
+```bash
+docker-compose up
+```
+* Asegurarse de que ambos servicios estén levantados
+* Acceder al esquema del backend y ejecutar los scripts totalActiveUsers.sql y totalLockedUsers.sql (requerido para el dashboard):
+```bash
+docker ps -a
+docker exec -it <id de contenedor de postgres creado> bash
+psql -d pruebaviamatica02 -U postgres
+# Copiar y pegar los scripts de ambos archivos y ejecutarlos
+```
+* Desde el navegador, ir a http://localhost:4200
+* También funciona Swagger en la misma ruta señalada líneas arriba
+
 ## Para probar
 * Login como usuario:
 ```bash
@@ -103,4 +142,5 @@ U: Administrat0r
 C: Tr20010878
 ```
 Las cuentas provienen de la data de prueba (data.sql).
+
 
